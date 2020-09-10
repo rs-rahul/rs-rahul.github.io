@@ -1,22 +1,57 @@
-const templateTodoControls = document.createElement("template");
+import { html } from "../node_modules/lit-html/lit-html.js";
+import { render } from "../node_modules/lit-html/lib/render.js";
 
-templateTodoControls.innerHTML = `
-<button id="all">All</button>
-<button id="active">Active</button>
-<button id="completed">Completed</button>
+const templateResultTodoControls = () => html`
+  <style>
+    ul {
+      padding-left: 0;
+    }
+    
+    ul li {
+      display: inline-block;
+      padding: 5px 15px;
+      background-color: #757575;
+      color: #fff;
+      cursor: pointer;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    ul li:hover {
+      background-color: #555;
+    }
+  </style>
+  <ul>
+    <li id="all">All</li>
+    <li id="active">Active</li>
+    <li id="completed">Completed</li>
+  </ul>
 `;
 
+/**
+ * Menu for filtering Todo into three categories: All, Active and Completed
+ */
 class TodoControls extends HTMLElement {
+  /**
+   * Constructor
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this.shadowRoot.appendChild(templateTodoControls.content.cloneNode(true));
+    render(templateResultTodoControls(), this.shadowRoot);
   }
 
+  /**
+   * Filters todo
+   * @param {string} option
+   */
   filterList(option) {
     filterTodo(option);
   }
 
+  /**
+   * Life cycle method called when component is mounted
+   */
   connectedCallback() {
     this.shadowRoot
       .querySelector("#all")
@@ -28,9 +63,14 @@ class TodoControls extends HTMLElement {
 
     this.shadowRoot
       .querySelector("#completed")
-      .addEventListener("click", (e) => this.filterList(FILTER_OPTION.completed));
+      .addEventListener("click", (e) =>
+        this.filterList(FILTER_OPTION.completed)
+      );
   }
 
+  /**
+   * Life cycle method called when component is unmounted
+   */
   disconnectedCallback() {
     this.shadowRoot.querySelector("#all").removeEventListener("click");
     this.shadowRoot.querySelector("#active").removeEventListener("click");

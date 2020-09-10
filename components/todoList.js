@@ -1,34 +1,43 @@
-const templateTodoList = document.createElement("template");
+import { html } from "../node_modules/lit-html/lit-html.js";
+import { render } from "../node_modules/lit-html/lib/render.js";
 
-templateTodoList.innerHTML = `
-<style>
-  li {
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .strike {
-    text-decoration: line-through;
-  }
-</style>
-<ul></ul>
+const templateResultTodoList = () => html`
+  <style>
+    li {
+      cursor: pointer;
+    }
+  </style>
+  <ul></ul>
 `;
 
+/**
+ * TodoList class
+ */
 class TodoList extends HTMLElement {
+  /**
+   * Returns an array of attributes to be monitored for change, delete or add
+   */
   static get observedAttributes() {
     return ["list"];
   }
 
+  /**
+   * Constructor
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this.shadowRoot.appendChild(templateTodoList.content.cloneNode(true));
+    render(templateResultTodoList(), this.shadowRoot);
 
     this.getIndexOfItem = this.getIndexOfItem.bind(this);
     this.handleListAttributeChange = this.handleListAttributeChange.bind(this);
     this.removeListDom = this.removeListDom.bind(this);
   }
 
+  /**
+   * It returns the index of li in the ul element where todoItem is present
+   * @param {Object} todoItem
+   */
   getIndexOfItem(todoItem) {
     const lis = this.shadowRoot.querySelector("ul").children;
 
@@ -46,10 +55,18 @@ class TodoList extends HTMLElement {
     return index;
   }
 
+  /**
+   * Changes the completion state of the todoItem
+   * @param {Object} e
+   */
   toggleListState(e) {
     toggleList(e.target.getAttribute("data-id"));
   }
 
+  /**
+   * Renders only those todo items that are present in the state variable newList
+   * @param {Array} newList
+   */
   removeListDom(newList) {
     const ul = this.shadowRoot.querySelector("ul");
 
@@ -67,6 +84,10 @@ class TodoList extends HTMLElement {
     }
   }
 
+  /**
+   * Renders todo items
+   * @param {Array} newList
+   */
   handleListAttributeChange(newList) {
     this.removeListDom(newList);
 
@@ -95,6 +116,12 @@ class TodoList extends HTMLElement {
     });
   }
 
+  /**
+   * The method is called every time watachable attributes are added, changed or deleted
+   * @param {string} name
+   * @param {*} oldVal
+   * @param {*} newVal
+   */
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === "list") {
       let oldList, newList;
